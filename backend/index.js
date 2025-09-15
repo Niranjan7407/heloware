@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import cors from "cors";
 import User from "./db/Models/user.js";
 import cookieParser from "cookie-parser";
+const auth = require('./routes/auth.js')
 
 app.use(cors({
     origin: "http://localhost:5173",
@@ -54,5 +55,9 @@ app.listen(process.env.PORT,()=>{
     console.log(`Server is running in port ${process.env.PORT}`);
     connectDB(process.env.DB_URL)
 })
+
+app.use('/auth',auth);
+
+
 
 
