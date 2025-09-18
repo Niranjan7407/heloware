@@ -10,14 +10,41 @@ router.get('/google',
 );
 
 router.get('/google/callback',
-    passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login', session: false }),
-    (req, res) => {
-        const user = req.user;
-        const token = jwt.sign({ id: user._id, email: user.email }, process.env.SECRET, { expiresIn: '1h' });
-        res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'Lax' });
-        res.redirect('http://localhost:5173');
+    passport.authenticate('google', { failureRedirect: 'http://localhost:5173/login' }),
+    async (req, res) => {
+    if (await User.findOne({ email: req.user.email })) {
+      // Already in DB → send them straight to dashboard
+      res.redirect('http://localhost:5173/dashboard');
+    } else {
+      // Not yet in DB → send them to choose username
+      res.redirect('http://localhost:5173/username');
     }
+  }
 );
+
+router.post('/username', async (req, res) => {
+    const { userName } = req.body;
+    
+    if(!userName){
+        return res.status(400).json({ message: "Username is required." });
+    }
+    const existingUser = await User.findOne({ userName: userName });
+    if(existingUser){
+        return res.status(400).json({ message: "Username already taken." });
+    }
+    const user = await new User({
+        userName,
+        email: req.user.email,
+        name: req.user.name,
+        OAuth: req.user.OAuth,
+        profile: req.user.profile,
+    }).save();
+
+    const token = jwt.sign({ id: user._id, email: user.email }, process.env.SECRET, { expiresIn: '1h' });
+    res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'Lax' });
+    
+    res.status(200).json({ message: "User created successfully", user });
+});
 
 router.post('/email', async (req, res) => {
     const { email, password } = req.body;
@@ -37,9 +64,9 @@ router.post('/email', async (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    const { name, email, password } = req.body;
-    if(!name || !email || !password){
-        return res.status(400).json({ message: "Name, Email and Password are required." });
+    const { name, userName, email, password } = req.body;
+    if(!name || !email || !password || !userName){
+        return res.status(400).json({ message: "Name, Username, Email and Password are required." });
     }
     const existingUser = await User.findOne({ email: email });
     if(existingUser){
@@ -47,6 +74,7 @@ router.post('/register', async (req, res) => {
     }
     const newUser = new User({
         name,
+        userName,
         email,
         password
     });
