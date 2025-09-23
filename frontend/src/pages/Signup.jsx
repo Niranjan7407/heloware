@@ -2,10 +2,12 @@ import { React, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import GoogleSvg from './../assets/google-icon-logo.svg';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/authSlice';
 
 const Signup = () => {
   const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
+  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -19,12 +21,20 @@ const Signup = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/signup', {
-        username,
+      const response = await axios.post('http://localhost:5000/auth/signup', {
+        userName,
         email,
         password,
       });
       if (response.status === 201) {
+        const newUser = {
+          id: response.data.user?._id, // if backend returns user
+          name,
+          email,
+          profile: null,
+          token: null, // will get after login
+        };
+        dispatch(loginSuccess(newUser));
         navigate('/login');
       }
     } catch (err) {
@@ -84,7 +94,7 @@ const Signup = () => {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
               className="w-full px-3 py-2 border rounded"
               required
             />
