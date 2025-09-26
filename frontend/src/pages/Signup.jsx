@@ -2,9 +2,12 @@ import { React, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import GoogleSvg from './../assets/google-icon-logo.svg';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/authSlice';
 
 const Signup = () => {
-  const [username, setUsername] = useState('');
+  const [name, setName] = useState('');
+  const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,12 +21,20 @@ const Signup = () => {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/signup', {
-        username,
+      const response = await axios.post('http://localhost:5000/auth/signup', {
+        userName,
         email,
         password,
       });
       if (response.status === 201) {
+        const newUser = {
+          id: response.data.user?._id, // if backend returns user
+          name,
+          email,
+          profile: null,
+          token: null, // will get after login
+        };
+        dispatch(loginSuccess(newUser));
         navigate('/login');
       }
     } catch (err) {
@@ -35,6 +46,10 @@ const Signup = () => {
     }
   };
 
+  const handleGoogleSignup = () => {
+    window.open('http://localhost:5000/auth/google', '_self');
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
@@ -44,7 +59,10 @@ const Signup = () => {
             {error}
           </div>
         )}
-        <button className="w-full flex flex-row items-center justify-center gap-3 p-2 rounded-2xl border-1 mb-4">
+        <button
+          onClick={handleGoogleSignup}
+          className="w-full flex flex-row items-center justify-center gap-3 p-2 rounded-2xl border-1 mb-4"
+        >
           <img src={GoogleSvg} className="w-8 h-8" alt="GLogo" />
           <div>Login with Google</div>
         </button>
@@ -56,6 +74,19 @@ const Signup = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
+            <label className="block text-gray-700 mb-2" htmlFor="name">
+              Name
+            </label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 border rounded"
+              required
+            />
+          </div>
+          <div className="mb-4">
             <label className="block text-gray-700 mb-2" htmlFor="username">
               Username
             </label>
@@ -63,7 +94,7 @@ const Signup = () => {
               type="text"
               id="username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
               className="w-full px-3 py-2 border rounded"
               required
             />
