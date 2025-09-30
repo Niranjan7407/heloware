@@ -1,6 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const http = require('http');
+const socketio = require('socket.io');
 const connectDB = require('./db/connectDB');
 const passport = require("passport");
 const session = require("express-session");
@@ -9,6 +11,8 @@ const cors = require("cors");
 const User = require("./db/Models/user.js");
 const cookieParser = require("cookie-parser");
 const auth = require('./routes/auth.js');
+const chats = require('./routes/chats.js');
+const userRoutes = require('./routes/user.js');
 
 // Middleware
 app.use(cors({
@@ -42,35 +46,50 @@ passport.use(new GoogleStrategy({
 }, async (accessToken, refreshToken, profile, done) => {
   try {
     let user = await User.findOne({ email: profile.emails[0].value });
-     if (user) {
-      // ✅ Existing user → login immediately
+    if (user) {
       return done(null, user);
-    }
-    else {
-      console.log(profile)
-      tempUser = {
+    } else {
+      // Pass minimal info to frontend for username prompt
+      const tempUser = {
+        username: "", // Add this line
         name: profile.displayName,
         email: profile.emails[0].value,
+        profile: profile.photos[0].value,
         OAuth: {
           googleId: profile.id,
           googleAccessToken: accessToken,
           googleRefreshToken: refreshToken
-        },
-        profile: profile.photos[0].value
+        }
       };
       return done(null, tempUser);
     }
-    
   } catch (err) {
     return done(err, null);
   }
 }));
 
+// Create server and socket.io instance
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  }
+});
+
+// Socket.io connection handler
+io.on('connection', (socket) => {
+  console.log('Socket connected:', socket.id);
+  // You can add chat message handlers here
+});
+
 // Routes
 app.use('/auth', auth);
+app.use('/api/chats', chats);
+app.use('/api/user', userRoutes);
 
 // Start server
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`Server is running on port ${process.env.PORT}`);
   connectDB(process.env.DB_URL);
 });

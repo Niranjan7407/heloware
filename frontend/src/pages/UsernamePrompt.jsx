@@ -1,56 +1,66 @@
+import { useState } from 'react';
 import axios from 'axios';
-import React from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../redux/authSlice';
 
-export default function UsernamePrompt() {
-  const onSubmit = (e) => {
+const UsernamePrompt = () => {
+  const [username, setUsername] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const dispatch = useDispatch();
+
+  const email = searchParams.get('email');
+  const name = searchParams.get('name');
+  const profile = searchParams.get('profile');
+  // If you need OAuth info, add it to the query params and extract here
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    axios
-      .post(
+    try {
+      const res = await axios.post(
         'http://localhost:5000/auth/username',
-        {
-          userName: e.target.username.value,
-        },
-        { withCredentials: true }
-      )
-      .then((res) => {
-        if (res.status === 200) {
-          window.location.href = '/';
-        }
-      })
-      .catch((err) => {
-        if (err.response && err.response.data && err.response.data.message) {
-          alert(err.response.data.message);
-        } else {
-          alert('An error occurred. Please try again.');
-        }
-      });
+        { username },
+        { withCredentials: true } // <-- add this option
+      );
+      // Hydrate Redux and store token
+      if (res.data.user) {
+        dispatch(loginSuccess(res.data.user));
+      }
+      navigate('/');
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed');
+    }
   };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          Choose a Username
-        </h2>
-        <form onSubmit={onSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="username">
-              Username
-            </label>
-            <input
-              type="text"
-              id="username"
-              className="w-full px-3 py-2 border rounded"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition duration-200"
-          >
-            Submit
-          </button>
-        </form>
-      </div>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h2 className="text-2xl mb-4">Choose a Username</h2>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col items-center"
+      >
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="border p-2 mb-2"
+          required
+        />
+        <button
+          type="submit"
+          className="bg-indigo-500 text-white px-4 py-2 rounded"
+        >
+          Submit
+        </button>
+        {error && (
+          <div className="text-red-500 mt-2">{error}</div>
+        )}
+      </form>
     </div>
   );
-}
+};
+
+export default UsernamePrompt;
