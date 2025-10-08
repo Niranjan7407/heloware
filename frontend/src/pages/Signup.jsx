@@ -7,7 +7,7 @@ import { loginSuccess } from '../redux/authSlice';
 
 const Signup = () => {
   const [name, setName] = useState('');
-  const [userName, setUserName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,30 +20,19 @@ const Signup = () => {
       setError('Passwords do not match');
       return;
     }
-    try {
-      const response = await axios.post('http://localhost:5000/auth/signup', {
-        userName,
+    axios
+      .post('http://localhost:5000/auth/signup', {
+        username,
+        name,
         email,
         password,
-      });
-      if (response.status === 201) {
-        const newUser = {
-          id: response.data.user?._id, // if backend returns user
-          name,
-          email,
-          profile: null,
-          token: null, // will get after login
-        };
-        dispatch(loginSuccess(newUser));
+      })
+      .then((res) => {
         navigate('/login');
-      }
-    } catch (err) {
-      if (err.response && err.response.data && err.response.data.message) {
-        setError(err.response.data.message);
-      } else {
-        setError('An error occurred. Please try again.');
-      }
-    }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleGoogleSignup = () => {
@@ -87,14 +76,14 @@ const Signup = () => {
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="username">
+            <label className="block text-gray-700 mb-2" htmlFor="userName">
               Username
             </label>
             <input
               type="text"
-              id="username"
+              id="userName"
               value={username}
-              onChange={(e) => setUserName(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border rounded"
               required
             />

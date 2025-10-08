@@ -1,5 +1,6 @@
 import { MoreVertical, ChevronLast, ChevronFirst } from 'lucide-react';
 import { useContext, createContext, useState } from 'react';
+import PropTypes from 'prop-types';
 
 const SidebarContext = createContext();
 
@@ -100,3 +101,19 @@ export function SidebarItem({ icon, text, active, alert }) {
     </li>
   );
 }
+
+Sidebar.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
+SidebarItem.propTypes = {
+  icon: PropTypes.element.isRequired,
+  text: PropTypes.string.isRequired,
+  active: PropTypes.bool,
+  alert: PropTypes.bool,
+};
+
+SidebarItem.defaultProps = {
+  active: false,
+  alert: false,
+};

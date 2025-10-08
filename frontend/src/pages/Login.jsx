@@ -27,7 +27,7 @@ const Login = () => {
         const user = response.data.user || { email }; // backend should send user object
         dispatch(loginSuccess(user));
 
-        navigate('/dashboard');
+        navigate('/');
       }
     } catch (err) {
       if (err.response?.data?.message) {

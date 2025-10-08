@@ -1,33 +1,22 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-  list: [], // [{ chatId, type, participants, lastMessage, unreadCount }]
-  activeChatId: null,
+  chats: [],
+  activeChat: null,
 };
 
 const chatSlice = createSlice({
-  name: 'chats',
+  name: 'chat',
   initialState,
   reducers: {
-    setChats: (state, action) => {
-      state.list = action.payload;
+    setChats(state, action) {
+      state.chats = action.payload;
     },
-    setActiveChat: (state, action) => {
-      state.activeChatId = action.payload;
-    },
-    updateChat: (state, action) => {
-      const updatedChat = action.payload;
-      const index = state.list.findIndex(
-        (c) => c.chatId === updatedChat.chatId
-      );
-      if (index >= 0) {
-        state.list[index] = { ...state.list[index], ...updatedChat };
-      } else {
-        state.list.push(updatedChat);
-      }
+    setActiveChat(state, action) {
+      state.activeChat = action.payload;
     },
   },
 });
 
-export const { setChats, setActiveChat, updateChat } = chatSlice.actions;
+export const { setChats, setActiveChat } = chatSlice.actions;
 export default chatSlice.reducer;
