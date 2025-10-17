@@ -1,26 +1,24 @@
-import { MoreVertical, ChevronLast, ChevronFirst } from 'lucide-react';
+import { MoreVertical, ChevronLast, ChevronFirst, LogOut } from 'lucide-react';
 import { useContext, createContext, useState } from 'react';
 import PropTypes from 'prop-types';
 
 const SidebarContext = createContext();
 
-export default function Sidebar({ children }) {
+export default function Sidebar({ children, user, onLogout }) {
   const [expanded, setExpanded] = useState(true);
 
   return (
     <aside className="h-screen">
       <nav className="h-full flex flex-col bg-white border-r shadow-sm">
         <div className="p-4 pb-2 flex justify-between items-center">
-          <img
-            src="https://img.logoipsum.com/243.svg"
-            className={`overflow-hidden transition-all ${
-              expanded ? 'w-32' : 'w-0'
-            }`}
-            alt=""
-          />
+          <div
+            className={`overflow-hidden transition-all ${expanded ? 'w-32' : 'w-0'}`}
+          >
+            <h2 className="text-xl font-bold text-indigo-600">Heloware</h2>
+          </div>
           <button
             onClick={() => setExpanded((curr) => !curr)}
-            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100"
+            className="p-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors"
           >
             {expanded ? <ChevronFirst /> : <ChevronLast />}
           </button>
@@ -32,9 +30,12 @@ export default function Sidebar({ children }) {
 
         <div className="border-t flex p-3">
           <img
-            src="https://ui-avatars.com/api/?background=c7d2fe&color=3730a3&bold=true"
-            alt=""
-            className="w-10 h-10 rounded-md"
+            src={
+              user?.profile ||
+              `https://ui-avatars.com/api/?name=${user?.name}&background=6366f1&color=fff`
+            }
+            alt={user?.name}
+            className="w-10 h-10 rounded-md object-cover"
           />
           <div
             className={`
@@ -43,10 +44,16 @@ export default function Sidebar({ children }) {
           `}
           >
             <div className="leading-4">
-              <h4 className="font-semibold">John Doe</h4>
-              <span className="text-xs text-gray-600">johndoe@gmail.com</span>
+              <h4 className="font-semibold text-gray-900">{user?.name}</h4>
+              <span className="text-xs text-gray-600">@{user?.username}</span>
             </div>
-            <MoreVertical size={20} />
+            <button
+              onClick={onLogout}
+              className="p-1 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+              title="Logout"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </nav>
@@ -80,7 +87,7 @@ export function SidebarItem({ icon, text, active, alert }) {
       </span>
       {alert && (
         <div
-          className={`absolute right-2 w-2 h-2 rounded bg-indigo-400 ${
+          className={`absolute right-2 w-2 h-2 rounded bg-red-400 ${
             expanded ? '' : 'top-2'
           }`}
         />
@@ -104,6 +111,8 @@ export function SidebarItem({ icon, text, active, alert }) {
 
 Sidebar.propTypes = {
   children: PropTypes.node.isRequired,
+  user: PropTypes.object.isRequired,
+  onLogout: PropTypes.func.isRequired,
 };
 
 SidebarItem.propTypes = {
