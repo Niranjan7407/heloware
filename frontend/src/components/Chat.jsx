@@ -75,8 +75,7 @@ export default function Chat({ userId, otherUserId, chatName }) {
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
-      {/* Chat Header Component */}
+    <div className="h-full min-h-0 flex flex-col">
       <ChatHeader
         chatName={chatName}
         userStatus="Online"
@@ -85,8 +84,8 @@ export default function Chat({ userId, otherUserId, chatName }) {
         onMoreOptions={handleMoreOptions}
       />
 
-      {/* Chat Space Component - Fixed height with its own scrollbar */}
-      <div className="flex-1 min-h-0">
+      {/* Middle section fills remaining height; ChatSpace handles its own scroll */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         <ChatSpace
           messages={messages}
           userId={userId}
@@ -95,7 +94,6 @@ export default function Chat({ userId, otherUserId, chatName }) {
         />
       </div>
 
-      {/* Message Input Component */}
       <MessageInput
         onSendMessage={handleSendMessage}
         chatName={chatName}
