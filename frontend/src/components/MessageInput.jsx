@@ -25,7 +25,7 @@ const MessageInput = ({ onSendMessage, chatName, disabled = false }) => {
         >
           <Smile size={20} />
         </button>
-        
+
         <button
           type="button"
           className="p-2 text-gray-500 hover:text-indigo-600 rounded-full transition-colors flex-shrink-0"
@@ -39,7 +39,9 @@ const MessageInput = ({ onSendMessage, chatName, disabled = false }) => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="w-full border border-gray-300 rounded-full px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none placeholder-gray-500"
-            placeholder={chatName ? `Message ${chatName}...` : "Type a message..."}
+            placeholder={
+              chatName ? `Message ${chatName}...` : 'Type a message...'
+            }
             maxLength={1000}
             disabled={disabled}
           />
@@ -63,7 +65,7 @@ const MessageInput = ({ onSendMessage, chatName, disabled = false }) => {
 MessageInput.propTypes = {
   onSendMessage: PropTypes.func.isRequired,
   chatName: PropTypes.string,
-  disabled: PropTypes.bool
+  disabled: PropTypes.bool,
 };
 
 export default MessageInput;

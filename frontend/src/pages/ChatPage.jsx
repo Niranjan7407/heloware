@@ -12,11 +12,15 @@ export default function ChatPage() {
   if (!user || !chat) return <div>Loading chat...</div>;
 
   const otherUserId = chat.participants.find((p) => p._id !== user._id)._id;
+  const otherUserName = chat.participants.find((p) => p._id !== user._id)?.name;
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h2 className="text-xl font-bold mb-4">Chat</h2>
-      <Chat userId={user._id} otherUserId={otherUserId} />
+    <div className="min-h-screen w-full flex flex-col bg-gray-50">
+      <Chat
+        userId={user._id}
+        otherUserId={otherUserId}
+        chatName={otherUserName}
+      />
     </div>
   );
 }
