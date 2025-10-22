@@ -7,7 +7,7 @@ import userReducer from './userSlice';
 const store = configureStore({
   reducer: {
     auth: authReducer,
-    chat: chatReducer, // <-- this must be present
+    chat: chatReducer, 
     messages: messageReducer,
     users: userReducer,
   },

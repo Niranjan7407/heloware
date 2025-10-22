@@ -5,7 +5,9 @@ import MessageInput from './MessageInput.jsx';
 import ChatHeader from './ChatHeader.jsx';
 import ChatSpace from './ChatSpace.jsx';
 
-const socket = io('http://localhost:5000', { autoConnect: true });
+const socket = io('https://heloware-backend.onrender.com', {
+  autoConnect: true,
+});
 
 export default function Chat({ userId, otherUserId, chatName }) {
   const [messages, setMessages] = useState([]);
@@ -13,14 +15,12 @@ export default function Chat({ userId, otherUserId, chatName }) {
   const [isTyping, setIsTyping] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-  // Reset initial load state when chat changes
   useEffect(() => {
     setIsInitialLoad(true);
     setMessages([]);
     setChatId(null);
   }, [userId, otherUserId]);
 
-  // Update initial load state when messages arrive
   useEffect(() => {
     if (messages.length > 0 && isInitialLoad) {
       setTimeout(() => setIsInitialLoad(false), 200);
@@ -76,7 +76,6 @@ export default function Chat({ userId, otherUserId, chatName }) {
 
   return (
     <div className="flex flex-col w-full h-full bg-white">
-      {/* Header - fixed height, no shrink */}
       <div className="flex-shrink-0">
         <ChatHeader
           chatName={chatName}
@@ -87,7 +86,6 @@ export default function Chat({ userId, otherUserId, chatName }) {
         />
       </div>
 
-      {/* Messages area - takes remaining space and scrolls */}
       <div className="flex-1 min-h-0 overflow-hidden">
         <ChatSpace
           messages={messages}
@@ -97,7 +95,6 @@ export default function Chat({ userId, otherUserId, chatName }) {
         />
       </div>
 
-      {/* Message Input - fixed height, no shrink */}
       <div className="flex-shrink-0">
         <MessageInput
           onSendMessage={handleSendMessage}

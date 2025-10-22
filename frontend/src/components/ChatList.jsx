@@ -1,6 +1,3 @@
-// this component should fetch the list of chats for the user and display them
-// when a chat is clicked, it should call a prop function to set the active chat in the parent component
-
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
@@ -13,9 +10,8 @@ const ChatList = ({ userId, onSelectChat }) => {
   const activeChatId = useSelector((state) => state.chat?.activeChat);
 
   useEffect(() => {
-    // Fetch chats for the user
     axios
-      .get(`http://localhost:5000/api/chats/${userId}`)
+      .get(`https://heloware-backend.onrender.com/api/chats/${userId}`)
       .then((res) => {
         dispatch(setChats(res.data.chats));
       })
@@ -64,7 +60,6 @@ const ChatList = ({ userId, onSelectChat }) => {
 
   return (
     <div className="h-full">
-      {/* Scrollable chat list */}
       <div className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400">
         <div className="divide-y divide-gray-100">
           {chats.map((chat) => {

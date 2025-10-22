@@ -14,15 +14,14 @@ const UsernamePrompt = () => {
   const email = searchParams.get('email');
   const name = searchParams.get('name');
   const profile = searchParams.get('profile');
-  // If you need OAuth info, add it to the query params and extract here
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'http://localhost:5000/auth/username',
+        'https://heloware-backend.onrender.com/auth/username',
         { username },
-        { withCredentials: true } // <-- add this option
+        { withCredentials: true } 
       );
       // Hydrate Redux and store token
       if (res.data.user) {

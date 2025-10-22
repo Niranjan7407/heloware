@@ -6,31 +6,25 @@ const ChatSpace = ({ messages, userId, chatName, isInitialLoad }) => {
   const messagesContainerRef = useRef(null);
   const shouldScrollRef = useRef(true);
 
-  // Scroll to bottom when new messages arrive
   const scrollToBottom = useCallback((behavior = 'smooth') => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior });
     }
   }, []);
 
-  // Handle scroll to detect if user is at bottom
   const handleScroll = useCallback((e) => {
     if (e.target) {
       const { scrollHeight, scrollTop, clientHeight } = e.target;
-      // If user is within 50px of bottom, consider them at bottom
       shouldScrollRef.current = scrollHeight - scrollTop - clientHeight < 50;
     }
   }, []);
 
-  // Auto-scroll to bottom only on initial load or when new messages arrive
   useEffect(() => {
     if (messages.length > 0) {
       if (isInitialLoad) {
-        // Initial load: scroll to bottom instantly
         setTimeout(() => scrollToBottom('instant'), 100);
         shouldScrollRef.current = true;
       } else if (shouldScrollRef.current) {
-        // User was at bottom, keep them there as new messages arrive
         setTimeout(() => scrollToBottom('smooth'), 100);
       }
     }
@@ -80,7 +74,6 @@ const ChatSpace = ({ messages, userId, chatName, isInitialLoad }) => {
 
   return (
     <div ref={messagesContainerRef} className="h-full bg-gray-50 flex flex-col">
-      {/* This is the only scrollable area and its height is fixed by the parent */}
       <div
         className="flex-1 overflow-y-auto px-6 py-4 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400 flex flex-col"
         style={{ scrollBehavior: 'smooth', overflowAnchor: 'none' }}

@@ -24,7 +24,9 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) {
       axios
-        .get('http://localhost:5000/auth/me', { withCredentials: true })
+        .get('https://heloware-backend.onrender.com/auth/me', {
+          withCredentials: true,
+        })
         .then((res) => {
           if (res.status === 200 && res.data.user) {
             dispatch(loginSuccess(res.data.user));
@@ -37,9 +39,8 @@ const Dashboard = () => {
         });
     } else {
       setLoadingChats(true);
-      // Fetch chats
       axios
-        .get(`http://localhost:5000/api/chats/${user._id}`)
+        .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
         .then((res) => {
           dispatch(setChats(res.data.chats));
           setLoadingChats(false);
@@ -48,9 +49,10 @@ const Dashboard = () => {
           setError('Failed to load chats');
           setLoadingChats(false);
         });
-      // Fetch friend requests
       axios
-        .get(`http://localhost:5000/api/user/${user._id}/friend-requests`)
+        .get(
+          `https://heloware-backend.onrender.com/api/user/${user._id}/friend-requests`
+        )
         .then((res) => setFriendRequests(res.data.friendRequests || []));
     }
   }, [user, dispatch, navigate]);
@@ -64,10 +66,13 @@ const Dashboard = () => {
     const toUsername = prompt('Enter username to send friend request:');
     if (toUsername) {
       axios
-        .post('http://localhost:5000/api/chats/friend-request', {
-          fromUserId: user._id,
-          toUsername,
-        })
+        .post(
+          'https://heloware-backend.onrender.com/api/chats/friend-request',
+          {
+            fromUserId: user._id,
+            toUsername,
+          }
+        )
         .then(() => {
           alert('Friend request sent successfully!');
         })
@@ -81,22 +86,21 @@ const Dashboard = () => {
 
   const handleAcceptFriendRequest = (friendId) => {
     axios
-      .post('http://localhost:5000/api/chats/accept-friend', {
+      .post('https://heloware-backend.onrender.com/api/chats/accept-friend', {
         userId: user._id,
         friendId,
       })
       .then((res) => {
         setFriendRequests((prev) => prev.filter((u) => u._id !== friendId));
-        // Refresh chats
         axios
-          .get(`http://localhost:5000/api/chats/${user._id}`)
+          .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
           .then((res) => dispatch(setChats(res.data.chats)));
       });
   };
 
   const handleRejectFriendRequest = (friendId) => {
     axios
-      .post('http://localhost:5000/api/chats/reject-friend', {
+      .post('https://heloware-backend.onrender.com/api/chats/reject-friend', {
         userId: user._id,
         friendId,
       })
@@ -114,7 +118,6 @@ const Dashboard = () => {
 
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
-      {/* Sidebar */}
       <div className="hidden md:flex">
         <DashboardSidebar
           user={user}
@@ -126,9 +129,7 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
@@ -160,7 +161,6 @@ const Dashboard = () => {
           </div>
         </header>
 
-        {/* Friend Requests Dropdown */}
         {showFriendRequests && (
           <div className="bg-white border-b border-gray-200 px-6 py-4">
             <h3 className="text-lg font-semibold text-gray-900 mb-3">
@@ -214,9 +214,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Chat Interface */}
         <div className="flex-1 flex overflow-hidden min-h-0">
-          {/* Chat List */}
           <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
             <div className="p-4 border-b border-gray-200 flex-shrink-0">
               <h2 className="font-semibold text-gray-900">Conversations</h2>
@@ -232,7 +230,6 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Chat Area */}
           <div className="flex-1 min-h-0 flex flex-col bg-white">
             {activeChatData ? (
               <Chat

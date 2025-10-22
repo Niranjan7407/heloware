@@ -34,12 +34,5 @@ router.get('/:userId/friend-requests', async (req, res) => {
   }
 });
 
-const initialState = {
-  byId: {},
-  username: null,
-  email: null,
-  // ...other fields...
-};
-
 
 module.exports = router;

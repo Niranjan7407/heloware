@@ -9,9 +9,12 @@ const useAuthCheck = () => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/auth/me', {
-          withCredentials: true,
-        });
+        const res = await axios.get(
+          'https://heloware-backend.onrender.com/auth/me',
+          {
+            withCredentials: true,
+          }
+        );
         if (res.data.user) {
           dispatch(loginSuccess(res.data.user));
         }
