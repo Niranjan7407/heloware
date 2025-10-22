@@ -18,7 +18,7 @@ const messageRoutes = require('./routes/messages.js');
 
 // Middleware
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: "https://heloware.vercel.app/",
   credentials: true,
 }));
 app.use(cookieParser());
@@ -74,7 +74,7 @@ passport.use(new GoogleStrategy({
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "https://heloware.vercel.app/",
     credentials: true,
   }
 });
