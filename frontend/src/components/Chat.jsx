@@ -75,16 +75,19 @@ export default function Chat({ userId, otherUserId, chatName }) {
   };
 
   return (
-    <div className="h-full min-h-0 flex flex-col">
-      <ChatHeader
-        chatName={chatName}
-        userStatus="Online"
-        onVideoCall={handleVideoCall}
-        onPhoneCall={handlePhoneCall}
-        onMoreOptions={handleMoreOptions}
-      />
+    <div className="flex flex-col w-full h-full bg-white">
+      {/* Header - fixed height, no shrink */}
+      <div className="flex-shrink-0">
+        <ChatHeader
+          chatName={chatName}
+          userStatus="Online"
+          onVideoCall={handleVideoCall}
+          onPhoneCall={handlePhoneCall}
+          onMoreOptions={handleMoreOptions}
+        />
+      </div>
 
-      {/* Middle section fills remaining height; ChatSpace handles its own scroll */}
+      {/* Messages area - takes remaining space and scrolls */}
       <div className="flex-1 min-h-0 overflow-hidden">
         <ChatSpace
           messages={messages}
@@ -94,11 +97,14 @@ export default function Chat({ userId, otherUserId, chatName }) {
         />
       </div>
 
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        chatName={chatName}
-        disabled={!chatId}
-      />
+      {/* Message Input - fixed height, no shrink */}
+      <div className="flex-shrink-0">
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          chatName={chatName}
+          disabled={!chatId}
+        />
+      </div>
     </div>
   );
 }
