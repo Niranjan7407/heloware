@@ -17,11 +17,11 @@ router.get('/google/callback',
       const token = jwt.sign({ id: req.user._id, email: req.user.email }, process.env.SECRET, { expiresIn: '7d' });
       res.cookie('token', token, { httpOnly: true, secure: false, sameSite: 'Lax' });
       res.user = req.user;
-      res.redirect('http://localhost:5173/');
+      res.redirect('https://heloware.vercel.app');
     } else {
       // Store Google info in session for later use
       req.session.googleProfile = req.user;
-      res.redirect(`http://localhost:5173/username-prompt?email=${encodeURIComponent(req.user.email)}&name=${encodeURIComponent(req.user.name)}&profile=${encodeURIComponent(req.user.profile)}`);
+      res.redirect(`https://heloware.vercel.app/username-prompt?email=${encodeURIComponent(req.user.email)}&name=${encodeURIComponent(req.user.name)}&profile=${encodeURIComponent(req.user.profile)}`);
     }
   }
 );
