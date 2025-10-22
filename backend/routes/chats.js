@@ -47,7 +47,17 @@ router.post('/accept-friend', async (req, res) => {
       await user.save();
       friend.friends.push(userId);
       await friend.save();
-      res.json({ message: 'Friend request accepted' });
+
+      // Start chat if not exists
+      let chat = await Chat.findOne({
+        participants: { $all: [userId, friendId], $size: 2 }
+      });
+      if (!chat) {
+        chat = new Chat({ participants: [userId, friendId], messages: [] });
+        await chat.save();
+      }
+
+      res.json({ message: 'Friend request accepted', chatId: chat._id });
     } else {
       res.status(400).json({ message: 'No such friend request' });
     }

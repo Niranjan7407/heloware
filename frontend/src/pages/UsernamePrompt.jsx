@@ -37,10 +37,7 @@ const UsernamePrompt = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <h2 className="text-2xl mb-4">Choose a Username</h2>
-      <form
-        onSubmit={handleSubmit}
-        className="flex flex-col items-center"
-      >
+      <form onSubmit={handleSubmit} className="flex flex-col items-center">
         <input
           type="text"
           placeholder="Username"
@@ -55,9 +52,7 @@ const UsernamePrompt = () => {
         >
           Submit
         </button>
-        {error && (
-          <div className="text-red-500 mt-2">{error}</div>
-        )}
+        {error && <div className="text-red-500 mt-2">{error}</div>}
       </form>
     </div>
   );
