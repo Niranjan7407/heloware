@@ -21,7 +21,7 @@ const Signup = () => {
       return;
     }
     axios
-      .post('http://localhost:5000/auth/signup', {
+      .post('https://heloware-backend.onrender.com/auth/signup', {
         username,
         name,
         email,
@@ -36,7 +36,7 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = () => {
-    window.open('http://localhost:5000/auth/google', '_self');
+    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
   };
 
   return (

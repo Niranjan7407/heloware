@@ -22,7 +22,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/auth/email',
+        'https://heloware-backend.onrender.com/auth/email',
         { email, password },
         { withCredentials: true }
       );
@@ -44,7 +44,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.open('http://localhost:5000/auth/google', '_self');
+    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
   };
 
   return (
@@ -63,7 +63,6 @@ const Login = () => {
           </div>
         )}
 
-        {/* Google Login */}
         <button
           onClick={handleGoogleLogin}
           className="w-full flex items-center justify-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors mb-6"
@@ -80,7 +79,6 @@ const Login = () => {
           <div className="flex-1 border-t border-gray-300"></div>
         </div>
 
-        {/* Email Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
