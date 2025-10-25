@@ -5,7 +5,7 @@ import MessageInput from './MessageInput.jsx';
 import ChatHeader from './ChatHeader.jsx';
 import ChatSpace from './ChatSpace.jsx';
 
-const socket = io('https://heloware-backend.onrender.com', {
+const socket = io(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000' : 'https://heloware-backend.onrender.com', {
   autoConnect: true,
 });
 

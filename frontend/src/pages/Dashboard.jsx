@@ -24,7 +24,7 @@ const Dashboard = () => {
   useEffect(() => {
     if (!user) {
       axios
-        .get('https://heloware-backend.onrender.com/auth/me', {
+        .get(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/me' : 'https://heloware-backend.onrender.com/auth/me', {
           withCredentials: true,
         })
         .then((res) => {
@@ -40,7 +40,7 @@ const Dashboard = () => {
     } else {
       setLoadingChats(true);
       axios
-        .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
+        .get(import.meta.env.VITE_MODE == "Development" ? `http://localhost:3000/api/chats/${user._id}` : `https://heloware-backend.onrender.com/api/chats/${user._id}`)
         .then((res) => {
           dispatch(setChats(res.data.chats));
           setLoadingChats(false);
@@ -51,7 +51,7 @@ const Dashboard = () => {
         });
       axios
         .get(
-          `https://heloware-backend.onrender.com/api/user/${user._id}/friend-requests`
+          import.meta.env.VITE_MODE == "Development" ? `http://localhost:3000/api/user/${user._id}/friend-requests` : `https://heloware-backend.onrender.com/api/user/${user._id}/friend-requests`
         )
         .then((res) => setFriendRequests(res.data.friendRequests || []));
     }
@@ -67,7 +67,7 @@ const Dashboard = () => {
     if (toUsername) {
       axios
         .post(
-          'https://heloware-backend.onrender.com/api/chats/friend-request',
+          import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/api/chats/friend-request' : 'https://heloware-backend.onrender.com/api/chats/friend-request',
           {
             fromUserId: user._id,
             toUsername,
@@ -86,21 +86,21 @@ const Dashboard = () => {
 
   const handleAcceptFriendRequest = (friendId) => {
     axios
-      .post('https://heloware-backend.onrender.com/api/chats/accept-friend', {
+      .post(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/api/chats/accept-friend' : 'https://heloware-backend.onrender.com/api/chats/accept-friend', {
         userId: user._id,
         friendId,
       })
       .then((res) => {
         setFriendRequests((prev) => prev.filter((u) => u._id !== friendId));
         axios
-          .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
+          .get(import.meta.env.VITE_MODE == "Development" ? `http://localhost:3000/api/chats/${user._id}` : `https://heloware-backend.onrender.com/api/chats/${user._id}`)
           .then((res) => dispatch(setChats(res.data.chats)));
       });
   };
 
   const handleRejectFriendRequest = (friendId) => {
     axios
-      .post('https://heloware-backend.onrender.com/api/chats/reject-friend', {
+      .post(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/api/chats/reject-friend' : 'https://heloware-backend.onrender.com/api/chats/reject-friend', {
         userId: user._id,
         friendId,
       })

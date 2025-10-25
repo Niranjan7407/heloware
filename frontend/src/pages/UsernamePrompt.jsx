@@ -19,7 +19,7 @@ const UsernamePrompt = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'https://heloware-backend.onrender.com/auth/username',
+        import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/username' : 'https://heloware-backend.onrender.com/auth/username',
         { username },
         { withCredentials: true } 
       );

@@ -22,7 +22,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        'https://heloware-backend.onrender.com/auth/email',
+        import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/email' : 'https://heloware-backend.onrender.com/auth/email',
         { email, password },
         { withCredentials: true }
       );
@@ -44,7 +44,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
+    window.open(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/google' : 'https://heloware-backend.onrender.com/auth/google', '_self');
   };
 
   return (
