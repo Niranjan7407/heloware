@@ -21,7 +21,7 @@ const Signup = () => {
       return;
     }
     axios
-      .post('https://heloware-backend.onrender.com/auth/signup', {
+      .post(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/signup' : 'https://heloware-backend.onrender.com/auth/signup', {
         username,
         name,
         email,
@@ -36,7 +36,7 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = () => {
-    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
+    window.open(import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/google' : 'https://heloware-backend.onrender.com/auth/google', '_self');
   };
 
   return (

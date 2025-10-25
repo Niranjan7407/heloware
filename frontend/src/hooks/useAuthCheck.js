@@ -10,7 +10,7 @@ const useAuthCheck = () => {
     const checkAuth = async () => {
       try {
         const res = await axios.get(
-          'https://heloware-backend.onrender.com/auth/me',
+          import.meta.env.VITE_MODE == "Development" ? 'http://localhost:3000/auth/me' : 'https://heloware-backend.onrender.com/auth/me',
           {
             withCredentials: true,
           }
