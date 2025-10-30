@@ -1,10 +1,6 @@
 # Heloware
 
 <p align="center">
-  <img src="frontend/src/assets/logo.png" alt="Heloware Logo" width="200"/>
-</p>
-
-<p align="center">
   A modern real-time chat application with end-to-end encryption, built with React and Node.js
 </p>
 
@@ -13,9 +9,7 @@
   <a href="#tech-stack">Tech Stack</a> •
   <a href="#getting-started">Getting Started</a> •
   <a href="#deployment">Deployment</a> •
-  <a href="#screenshots">Screenshots</a> •
-  <a href="#contributing">Contributing</a> •
-  <a href="#license">License</a>
+  <a href="#screenshots">Screenshots</a> 
 </p>
 
 ## Features
