@@ -11,7 +11,7 @@ const ChatList = ({ userId, onSelectChat }) => {
 
   useEffect(() => {
     axios
-      .get(`https://heloware-backend.onrender.com/api/chats/${userId}`)
+      .get(import.meta.env.VITE_MODE == "Development" ? `http://localhost:3000/api/chats/${userId}` : `https://heloware-backend.onrender.com/api/chats/${userId}`)
       .then((res) => {
         dispatch(setChats(res.data.chats));
       })
