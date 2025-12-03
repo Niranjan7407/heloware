@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import GoogleSvg from './../assets/google-icon-logo.svg';
 import { loginSuccess } from '../redux/authSlice';
 import { Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { API_URL } from '../config.js';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -14,6 +15,14 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,15 +31,16 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        'https://heloware-backend.onrender.com/auth/email',
+        `${API_URL}/auth/email`,
         { email, password },
         { withCredentials: true }
       );
 
       if (response.status === 200) {
         const user = response.data.user || { email };
-        dispatch(loginSuccess(user));
-        navigate('/');
+        const token = response.data.token;
+        dispatch(loginSuccess({ user, token }));
+        navigate('/dashboard');
       }
     } catch (err) {
       if (err.response?.data?.message) {
@@ -44,7 +54,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
+    window.open(`${API_URL}/auth/google`, '_self');
   };
 
   return (

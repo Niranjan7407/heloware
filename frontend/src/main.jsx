@@ -5,6 +5,10 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './redux/store.js';
 import App from './App.jsx';
+import { setupAxiosInterceptors } from './utils/axiosConfig.js';
+
+// Setup axios interceptors for token management
+setupAxiosInterceptors();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

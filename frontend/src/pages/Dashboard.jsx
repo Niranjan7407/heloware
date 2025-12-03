@@ -1,46 +1,76 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { logout } from '../redux/authSlice';
+import { logout, rehydrateAuth } from '../redux/authSlice';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { loginSuccess } from '../redux/authSlice';
 import ChatList from '../components/ChatList.jsx';
 import Chat from '../components/Chat.jsx';
+import Home from '../components/Home.jsx';
 import { setChats, setActiveChat } from '../redux/chatSlice';
 import DashboardSidebar from '../components/DashboardSidebar.jsx';
-import { MessageSquare, UserPlus, Users, Bell } from 'lucide-react';
+import { MessageSquare, UserPlus, Users, Bell, Check, X } from 'lucide-react';
+import { API_URL } from '../config.js';
+import { io } from 'socket.io-client';
+
+let socket = null;
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
   const { chats, activeChat } = useSelector((state) => state.chat);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [friendRequests, setFriendRequests] = useState([]);
   const [activeChatData, setActiveChatData] = useState(null);
   const [loadingChats, setLoadingChats] = useState(false);
   const [error, setError] = useState('');
   const [showFriendRequests, setShowFriendRequests] = useState(false);
+  const [activeSection, setActiveSection] = useState('home'); // home, messages, notifications, settings
+
+  // Handle Google OAuth callback with token in URL
+  useEffect(() => {
+    const authSuccess = searchParams.get('auth');
+    if (authSuccess === 'success') {
+      // Fetch user data and token from session
+      axios
+        .get(`${API_URL}/auth/oauth-session`, {
+          withCredentials: true,
+        })
+        .then((res) => {
+          if (res.status === 200 && res.data.user && res.data.token) {
+            dispatch(rehydrateAuth({ user: res.data.user, token: res.data.token }));
+          }
+          // Clean up URL
+          setSearchParams({});
+        })
+        .catch((err) => {
+          console.error('Error fetching OAuth session:', err);
+          setSearchParams({});
+        });
+    }
+  }, [searchParams, setSearchParams, dispatch]);
 
   useEffect(() => {
     if (!user) {
       axios
-        .get('https://heloware-backend.onrender.com/auth/me', {
+        .get(`${API_URL}/auth/me`, {
           withCredentials: true,
         })
         .then((res) => {
-          if (res.status === 200 && res.data.user) {
-            dispatch(loginSuccess(res.data.user));
+          if (res.status === 200 && res.data.user && res.data.token) {
+            dispatch(loginSuccess({ user: res.data.user, token: res.data.token }));
           } else {
-            navigate('/login');
+            navigate('/');
           }
         })
         .catch((err) => {
-          navigate('/login');
+          navigate('/');
         });
     } else {
       setLoadingChats(true);
       axios
-        .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
+        .get(`${API_URL}/api/chats/${user._id}`)
         .then((res) => {
           dispatch(setChats(res.data.chats));
           setLoadingChats(false);
@@ -51,11 +81,50 @@ const Dashboard = () => {
         });
       axios
         .get(
-          `https://heloware-backend.onrender.com/api/user/${user._id}/friend-requests`
+          `${API_URL}/api/user/${user._id}/friend-requests`
         )
         .then((res) => setFriendRequests(res.data.friendRequests || []));
     }
   }, [user, dispatch, navigate]);
+
+  // Setup Socket.IO for real-time friend requests
+  useEffect(() => {
+    if (!user) return;
+
+    // Initialize socket connection
+    if (!socket) {
+      socket = io(API_URL, { autoConnect: true });
+    }
+
+    // Join user's personal room for notifications
+    socket.emit('join_notifications', { userId: user._id });
+
+    // Listen for incoming friend requests
+    socket.on('friend_request_received', (request) => {
+      setFriendRequests(prev => {
+        // Avoid duplicates
+        if (prev.find(r => r._id === request._id)) return prev;
+        return [...prev, request];
+      });
+    });
+
+    // Listen for friend request accepted notifications
+    socket.on('friend_request_accepted', (data) => {
+      // Refresh chats to show new friend
+      axios
+        .get(`${API_URL}/api/chats/${user._id}`)
+        .then((res) => {
+          dispatch(setChats(res.data.chats));
+        });
+    });
+
+    return () => {
+      if (socket) {
+        socket.off('friend_request_received');
+        socket.off('friend_request_accepted');
+      }
+    };
+  }, [user, dispatch]);
 
   const handleSelectChat = (chat) => {
     setActiveChatData(chat);
@@ -67,7 +136,7 @@ const Dashboard = () => {
     if (toUsername) {
       axios
         .post(
-          'https://heloware-backend.onrender.com/api/chats/friend-request',
+          `${API_URL}/api/chats/friend-request`,
           {
             fromUserId: user._id,
             toUsername,
@@ -86,21 +155,21 @@ const Dashboard = () => {
 
   const handleAcceptFriendRequest = (friendId) => {
     axios
-      .post('https://heloware-backend.onrender.com/api/chats/accept-friend', {
+      .post(`${API_URL}/api/chats/accept-friend`, {
         userId: user._id,
         friendId,
       })
       .then((res) => {
         setFriendRequests((prev) => prev.filter((u) => u._id !== friendId));
         axios
-          .get(`https://heloware-backend.onrender.com/api/chats/${user._id}`)
+          .get(`${API_URL}/api/chats/${user._id}`)
           .then((res) => dispatch(setChats(res.data.chats)));
       });
   };
 
   const handleRejectFriendRequest = (friendId) => {
     axios
-      .post('https://heloware-backend.onrender.com/api/chats/reject-friend', {
+      .post(`${API_URL}/api/chats/reject-friend`, {
         userId: user._id,
         friendId,
       })
@@ -116,151 +185,240 @@ const Dashboard = () => {
       </div>
     );
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'home':
+        return <Home />;
+      
+      case 'messages':
+        return (
+          <>
+            <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
+                  <p className="text-sm text-gray-600">
+                    Stay connected with your friends
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleSendFriendRequest}
+                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    <UserPlus size={16} />
+                    <span>Add Friend</span>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div className="flex-1 flex overflow-hidden min-h-0">
+              <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
+                <div className="p-4 border-b border-gray-200 flex-shrink-0">
+                  <h2 className="font-semibold text-gray-900">Conversations</h2>
+                </div>
+                <div className="flex-1 overflow-y-auto min-h-0">
+                  {loadingChats ? (
+                    <div className="flex justify-center items-center h-32">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    </div>
+                  ) : (
+                    <ChatList userId={user._id} onSelectChat={handleSelectChat} />
+                  )}
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0 flex flex-col bg-white">
+                {activeChatData ? (
+                  <Chat
+                    userId={user._id}
+                    otherUserId={
+                      activeChatData.participants.find((p) => p._id !== user._id)
+                        ?._id
+                    }
+                    chatName={
+                      activeChatData.participants.find((p) => p._id !== user._id)
+                        ?.name
+                    }
+                  />
+                ) : (
+                  <div className="flex-1 flex items-center justify-center bg-gray-50">
+                    <div className="text-center">
+                      <MessageSquare
+                        size={64}
+                        className="mx-auto text-gray-400 mb-4"
+                      />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        Select a conversation
+                      </h3>
+                      <p className="text-gray-500">
+                        Choose a chat from the sidebar to start messaging
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'notifications':
+        return (
+          <>
+            <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+                  <p className="text-sm text-gray-600">
+                    Manage your friend requests
+                  </p>
+                </div>
+                <div className="flex items-center space-x-4">
+                  <button
+                    onClick={handleSendFriendRequest}
+                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                  >
+                    <UserPlus size={16} />
+                    <span>Add Friend</span>
+                  </button>
+                </div>
+              </div>
+            </header>
+
+            <div className="flex-1 overflow-y-auto bg-gray-50">
+              <div className="max-w-4xl mx-auto p-6">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Bell size={20} className="mr-2 text-indigo-600" />
+                      Friend Requests
+                      {friendRequests.length > 0 && (
+                        <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center">
+                          {friendRequests.length}
+                        </span>
+                      )}
+                    </h3>
+                  </div>
+                  
+                  <div className="p-6">
+                    {friendRequests.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Bell size={64} className="mx-auto text-gray-300 mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          No pending friend requests
+                        </h3>
+                        <p className="text-gray-500 mb-6">
+                          When someone sends you a friend request, it will appear here.
+                        </p>
+                        <button
+                          onClick={handleSendFriendRequest}
+                          className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                          <UserPlus size={18} />
+                          <span>Add Your First Friend</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {friendRequests.map((request) => (
+                          <div
+                            key={request._id}
+                            className="flex items-center justify-between p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl border border-indigo-100 hover:shadow-md transition-shadow"
+                          >
+                            <div className="flex items-center space-x-4">
+                              <div className="relative">
+                                <img
+                                  src={
+                                    request.profile ||
+                                    `https://ui-avatars.com/api/?name=${request.name}&background=6366f1&color=fff`
+                                  }
+                                  alt={request.name}
+                                  className="w-14 h-14 rounded-full border-2 border-white shadow-sm"
+                                />
+                                <div className="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+                              </div>
+                              <div>
+                                <p className="font-semibold text-gray-900 text-lg">
+                                  {request.name}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  @{request.username}
+                                </p>
+                                <p className="text-xs text-gray-500 mt-1">
+                                  wants to be your friend
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex space-x-3">
+                              <button
+                                onClick={() => handleAcceptFriendRequest(request._id)}
+                                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
+                              >
+                                <Check size={18} />
+                                <span>Accept</span>
+                              </button>
+                              <button
+                                onClick={() => handleRejectFriendRequest(request._id)}
+                                className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm hover:shadow-md"
+                              >
+                                <X size={18} />
+                                <span>Decline</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+      
+      case 'settings':
+        return (
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="text-center">
+              <MessageSquare size={64} className="mx-auto text-gray-400 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">
+                Settings
+              </h3>
+              <p className="text-gray-500">
+                Coming soon! Customize your experience.
+              </p>
+            </div>
+          </div>
+        );
+      
+      default:
+        return <Home />;
+    }
+  };
+
   return (
     <div className="h-screen flex bg-gray-50 overflow-hidden">
       <div className="hidden md:flex">
         <DashboardSidebar
           user={user}
-          onLogout={() => {
+          onLogout={async () => {
+            try {
+              await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+            } catch (err) {
+              console.error('Logout error:', err);
+            }
             dispatch(logout());
             navigate('/login');
           }}
           friendRequestCount={friendRequests.length}
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
         />
       </div>
 
       <div className="flex-1 flex flex-col min-h-0">
-        <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-              <p className="text-sm text-gray-600">
-                Stay connected with your friends
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setShowFriendRequests(!showFriendRequests)}
-                className="relative p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-              >
-                <Bell size={20} />
-                {friendRequests.length > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {friendRequests.length}
-                  </span>
-                )}
-              </button>
-              <button
-                onClick={handleSendFriendRequest}
-                className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-              >
-                <UserPlus size={16} />
-                <span>Add Friend</span>
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {showFriendRequests && (
-          <div className="bg-white border-b border-gray-200 px-6 py-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">
-              Friend Requests
-            </h3>
-            {friendRequests.length === 0 ? (
-              <p className="text-gray-500">No pending friend requests</p>
-            ) : (
-              <div className="space-y-3">
-                {friendRequests.map((request) => (
-                  <div
-                    key={request._id}
-                    className="flex items-center justify-between bg-gray-50 p-3 rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={
-                          request.profile ||
-                          `https://ui-avatars.com/api/?name=${request.name}&background=6366f1&color=fff`
-                        }
-                        alt={request.name}
-                        className="w-10 h-10 rounded-full"
-                      />
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {request.name}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          @{request.username}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleAcceptFriendRequest(request._id)}
-                        className="bg-green-600 text-white px-3 py-1 rounded-md hover:bg-green-700 transition-colors text-sm"
-                      >
-                        Accept
-                      </button>
-                      <button
-                        onClick={() => handleRejectFriendRequest(request._id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-700 transition-colors text-sm"
-                      >
-                        Decline
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="flex-1 flex overflow-hidden min-h-0">
-          <div className="w-80 bg-white border-r border-gray-200 flex flex-col h-full">
-            <div className="p-4 border-b border-gray-200 flex-shrink-0">
-              <h2 className="font-semibold text-gray-900">Conversations</h2>
-            </div>
-            <div className="flex-1 overflow-y-auto min-h-0">
-              {loadingChats ? (
-                <div className="flex justify-center items-center h-32">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                </div>
-              ) : (
-                <ChatList userId={user._id} onSelectChat={handleSelectChat} />
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1 min-h-0 flex flex-col bg-white">
-            {activeChatData ? (
-              <Chat
-                userId={user._id}
-                otherUserId={
-                  activeChatData.participants.find((p) => p._id !== user._id)
-                    ?._id
-                }
-                chatName={
-                  activeChatData.participants.find((p) => p._id !== user._id)
-                    ?.name
-                }
-              />
-            ) : (
-              <div className="flex-1 flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                  <MessageSquare
-                    size={64}
-                    className="mx-auto text-gray-400 mb-4"
-                  />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Select a conversation
-                  </h3>
-                  <p className="text-gray-500">
-                    Choose a chat from the sidebar to start messaging
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+        {renderContent()}
       </div>
     </div>
   );

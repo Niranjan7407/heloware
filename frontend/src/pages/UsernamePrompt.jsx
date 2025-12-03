@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { loginSuccess } from '../redux/authSlice';
+import { API_URL } from '../config.js';
 
 const UsernamePrompt = () => {
   const [username, setUsername] = useState('');
@@ -19,15 +20,15 @@ const UsernamePrompt = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        'https://heloware-backend.onrender.com/auth/username',
+        `${API_URL}/auth/username`,
         { username },
         { withCredentials: true } 
       );
       // Hydrate Redux and store token
-      if (res.data.user) {
-        dispatch(loginSuccess(res.data.user));
+      if (res.data.user && res.data.token) {
+        dispatch(loginSuccess({ user: res.data.user, token: res.data.token }));
       }
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed');
     }
