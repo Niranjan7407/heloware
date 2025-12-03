@@ -19,14 +19,13 @@ const useAuthCheck = () => {
 
       // Try to get auth from backend (cookie-based)
       try {
-        const res = await axios.get(
-          `${API_URL}/auth/me`,
-          {
-            withCredentials: true,
-          }
-        );
+        const res = await axios.get(`${API_URL}/auth/me`, {
+          withCredentials: true,
+        });
         if (res.data.user && res.data.token) {
-          dispatch(rehydrateAuth({ user: res.data.user, token: res.data.token }));
+          dispatch(
+            rehydrateAuth({ user: res.data.user, token: res.data.token })
+          );
         }
       } catch (err) {
         // No valid session or token

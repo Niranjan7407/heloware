@@ -29,7 +29,11 @@ export const setupAxiosInterceptors = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         // Redirect to login if not already there
-        if (window.location.pathname !== '/login' && window.location.pathname !== '/' && window.location.pathname !== '/signup') {
+        if (
+          window.location.pathname !== '/login' &&
+          window.location.pathname !== '/' &&
+          window.location.pathname !== '/signup'
+        ) {
           window.location.href = '/';
         }
       }

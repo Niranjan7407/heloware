@@ -46,12 +46,12 @@ export default function Chat({ userId, otherUserId, chatName }) {
       setMessages((prev) => {
         // Use ref to get current chatId without adding it to dependencies
         const currentChatId = chatIdRef.current;
-        
+
         // Only process if message is for current chat or chatId not yet set
         if (currentChatId && msg.chatId !== currentChatId) {
           return prev; // Ignore messages from other chats
         }
-        
+
         // Check if message already exists (by timestamp, sender, and content)
         const isDuplicate = prev.some(
           (m) =>
@@ -59,11 +59,11 @@ export default function Chat({ userId, otherUserId, chatName }) {
             m.sender === msg.sender &&
             m.message === msg.message
         );
-        
+
         if (isDuplicate) {
           return prev; // Don't add duplicate
         }
-        
+
         return [...prev, msg];
       });
     };
@@ -101,10 +101,10 @@ export default function Chat({ userId, otherUserId, chatName }) {
         message,
         timestamp: new Date().toISOString(),
       };
-      
+
       // Optimistic UI update - add message immediately to sender's view
       setMessages((prev) => [...prev, msg]);
-      
+
       // Send to server
       socket.emit('chat_message', msg);
     }

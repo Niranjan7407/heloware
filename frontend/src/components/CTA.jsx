@@ -30,8 +30,8 @@ export default function CTA() {
 
         {/* Subheading */}
         <p className="text-xl text-white/90 mb-10 max-w-2xl mx-auto">
-          Create your free account today and connect with friends instantly.
-          No credit card required.
+          Create your free account today and connect with friends instantly. No
+          credit card required.
         </p>
 
         {/* CTA Buttons */}
@@ -42,7 +42,10 @@ export default function CTA() {
           >
             <span className="relative z-10 flex items-center space-x-2">
               <span>Get Started Now</span>
-              <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+              <ArrowRight
+                className="group-hover:translate-x-1 transition-transform"
+                size={20}
+              />
             </span>
           </Link>
 

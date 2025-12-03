@@ -39,7 +39,9 @@ const Dashboard = () => {
         })
         .then((res) => {
           if (res.status === 200 && res.data.user && res.data.token) {
-            dispatch(rehydrateAuth({ user: res.data.user, token: res.data.token }));
+            dispatch(
+              rehydrateAuth({ user: res.data.user, token: res.data.token })
+            );
           }
           // Clean up URL
           setSearchParams({});
@@ -59,7 +61,9 @@ const Dashboard = () => {
         })
         .then((res) => {
           if (res.status === 200 && res.data.user && res.data.token) {
-            dispatch(loginSuccess({ user: res.data.user, token: res.data.token }));
+            dispatch(
+              loginSuccess({ user: res.data.user, token: res.data.token })
+            );
           } else {
             navigate('/');
           }
@@ -80,9 +84,7 @@ const Dashboard = () => {
           setLoadingChats(false);
         });
       axios
-        .get(
-          `${API_URL}/api/user/${user._id}/friend-requests`
-        )
+        .get(`${API_URL}/api/user/${user._id}/friend-requests`)
         .then((res) => setFriendRequests(res.data.friendRequests || []));
     }
   }, [user, dispatch, navigate]);
@@ -101,9 +103,9 @@ const Dashboard = () => {
 
     // Listen for incoming friend requests
     socket.on('friend_request_received', (request) => {
-      setFriendRequests(prev => {
+      setFriendRequests((prev) => {
         // Avoid duplicates
-        if (prev.find(r => r._id === request._id)) return prev;
+        if (prev.find((r) => r._id === request._id)) return prev;
         return [...prev, request];
       });
     });
@@ -111,11 +113,9 @@ const Dashboard = () => {
     // Listen for friend request accepted notifications
     socket.on('friend_request_accepted', (data) => {
       // Refresh chats to show new friend
-      axios
-        .get(`${API_URL}/api/chats/${user._id}`)
-        .then((res) => {
-          dispatch(setChats(res.data.chats));
-        });
+      axios.get(`${API_URL}/api/chats/${user._id}`).then((res) => {
+        dispatch(setChats(res.data.chats));
+      });
     });
 
     return () => {
@@ -135,13 +135,10 @@ const Dashboard = () => {
     const toUsername = prompt('Enter username to send friend request:');
     if (toUsername) {
       axios
-        .post(
-          `${API_URL}/api/chats/friend-request`,
-          {
-            fromUserId: user._id,
-            toUsername,
-          }
-        )
+        .post(`${API_URL}/api/chats/friend-request`, {
+          fromUserId: user._id,
+          toUsername,
+        })
         .then(() => {
           alert('Friend request sent successfully!');
         })
@@ -189,7 +186,7 @@ const Dashboard = () => {
     switch (activeSection) {
       case 'home':
         return <Home />;
-      
+
       case 'messages':
         return (
           <>
@@ -224,7 +221,10 @@ const Dashboard = () => {
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                     </div>
                   ) : (
-                    <ChatList userId={user._id} onSelectChat={handleSelectChat} />
+                    <ChatList
+                      userId={user._id}
+                      onSelectChat={handleSelectChat}
+                    />
                   )}
                 </div>
               </div>
@@ -234,12 +234,14 @@ const Dashboard = () => {
                   <Chat
                     userId={user._id}
                     otherUserId={
-                      activeChatData.participants.find((p) => p._id !== user._id)
-                        ?._id
+                      activeChatData.participants.find(
+                        (p) => p._id !== user._id
+                      )?._id
                     }
                     chatName={
-                      activeChatData.participants.find((p) => p._id !== user._id)
-                        ?.name
+                      activeChatData.participants.find(
+                        (p) => p._id !== user._id
+                      )?.name
                     }
                   />
                 ) : (
@@ -262,14 +264,16 @@ const Dashboard = () => {
             </div>
           </>
         );
-      
+
       case 'notifications':
         return (
           <>
             <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Notifications
+                  </h1>
                   <p className="text-sm text-gray-600">
                     Manage your friend requests
                   </p>
@@ -300,16 +304,20 @@ const Dashboard = () => {
                       )}
                     </h3>
                   </div>
-                  
+
                   <div className="p-6">
                     {friendRequests.length === 0 ? (
                       <div className="text-center py-12">
-                        <Bell size={64} className="mx-auto text-gray-300 mb-4" />
+                        <Bell
+                          size={64}
+                          className="mx-auto text-gray-300 mb-4"
+                        />
                         <h3 className="text-lg font-medium text-gray-900 mb-2">
                           No pending friend requests
                         </h3>
                         <p className="text-gray-500 mb-6">
-                          When someone sends you a friend request, it will appear here.
+                          When someone sends you a friend request, it will
+                          appear here.
                         </p>
                         <button
                           onClick={handleSendFriendRequest}
@@ -352,14 +360,18 @@ const Dashboard = () => {
                             </div>
                             <div className="flex space-x-3">
                               <button
-                                onClick={() => handleAcceptFriendRequest(request._id)}
+                                onClick={() =>
+                                  handleAcceptFriendRequest(request._id)
+                                }
                                 className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
                               >
                                 <Check size={18} />
                                 <span>Accept</span>
                               </button>
                               <button
-                                onClick={() => handleRejectFriendRequest(request._id)}
+                                onClick={() =>
+                                  handleRejectFriendRequest(request._id)
+                                }
                                 className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm hover:shadow-md"
                               >
                                 <X size={18} />
@@ -376,7 +388,7 @@ const Dashboard = () => {
             </div>
           </>
         );
-      
+
       case 'settings':
         return (
           <div className="flex-1 flex items-center justify-center bg-gray-50">
@@ -391,7 +403,7 @@ const Dashboard = () => {
             </div>
           </div>
         );
-      
+
       default:
         return <Home />;
     }
@@ -404,7 +416,11 @@ const Dashboard = () => {
           user={user}
           onLogout={async () => {
             try {
-              await axios.post(`${API_URL}/auth/logout`, {}, { withCredentials: true });
+              await axios.post(
+                `${API_URL}/auth/logout`,
+                {},
+                { withCredentials: true }
+              );
             } catch (err) {
               console.error('Logout error:', err);
             }
@@ -417,9 +433,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0">
-        {renderContent()}
-      </div>
+      <div className="flex-1 flex flex-col min-h-0">{renderContent()}</div>
     </div>
   );
 };

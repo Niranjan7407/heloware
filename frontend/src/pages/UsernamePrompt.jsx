@@ -22,7 +22,7 @@ const UsernamePrompt = () => {
       const res = await axios.post(
         `${API_URL}/auth/username`,
         { username },
-        { withCredentials: true } 
+        { withCredentials: true }
       );
       // Hydrate Redux and store token
       if (res.data.user && res.data.token) {

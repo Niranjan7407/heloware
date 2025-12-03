@@ -33,8 +33,8 @@ export default function Hero() {
 
           {/* Subheading */}
           <p className="max-w-2xl mx-auto text-xl sm:text-2xl text-gray-600 leading-relaxed">
-            Experience seamless real-time conversations with friends and loved ones.
-            Fast, secure, and beautifully simple.
+            Experience seamless real-time conversations with friends and loved
+            ones. Fast, secure, and beautifully simple.
           </p>
 
           {/* CTA Buttons */}
@@ -45,7 +45,10 @@ export default function Hero() {
             >
               <span className="relative z-10 flex items-center space-x-2">
                 <span>Get Started Free</span>
-                <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
+                <ArrowRight
+                  className="group-hover:translate-x-1 transition-transform"
+                  size={20}
+                />
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
             </Link>
@@ -93,13 +96,25 @@ export default function Hero() {
 
       <style jsx>{`
         @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
+          0%,
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
         }
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
+          0%,
+          100% {
+            transform: translateY(0px);
+          }
+          50% {
+            transform: translateY(-20px);
+          }
         }
         .animate-blob {
           animation: blob 7s infinite;

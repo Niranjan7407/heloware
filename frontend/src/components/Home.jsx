@@ -10,7 +10,11 @@ export default function Home() {
           <div className="relative">
             <div className="absolute inset-0 bg-indigo-600 rounded-3xl blur-2xl opacity-20 animate-pulse"></div>
             <div className="relative bg-gradient-to-br from-indigo-600 to-purple-600 p-8 rounded-3xl shadow-2xl">
-              <MessageCircle size={80} className="text-white" strokeWidth={1.5} />
+              <MessageCircle
+                size={80}
+                className="text-white"
+                strokeWidth={1.5}
+              />
             </div>
           </div>
         </div>
@@ -21,7 +25,8 @@ export default function Home() {
             Welcome to <span className="text-indigo-600">Heloware</span>
           </h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Connect with friends, share moments, and stay in touch with the people who matter most.
+            Connect with friends, share moments, and stay in touch with the
+            people who matter most.
           </p>
         </div>
 
@@ -31,7 +36,9 @@ export default function Home() {
             <div className="bg-indigo-100 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Zap className="text-indigo-600" size={24} />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Fast & Reliable</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">
+              Fast & Reliable
+            </h3>
             <p className="text-sm text-gray-600">
               Real-time messaging with instant delivery
             </p>
@@ -41,7 +48,9 @@ export default function Home() {
             <div className="bg-purple-100 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-4">
               <Shield className="text-purple-600" size={24} />
             </div>
-            <h3 className="font-semibold text-gray-900 mb-2">Secure & Private</h3>
+            <h3 className="font-semibold text-gray-900 mb-2">
+              Secure & Private
+            </h3>
             <p className="text-sm text-gray-600">
               Your conversations are protected and private
             </p>
@@ -62,7 +71,9 @@ export default function Home() {
         <div className="mt-12 space-y-4">
           <div className="flex items-center justify-center space-x-2 text-gray-500">
             <Users size={20} />
-            <p className="text-sm">Select Messages to start chatting with your friends</p>
+            <p className="text-sm">
+              Select Messages to start chatting with your friends
+            </p>
           </div>
         </div>
 
@@ -74,7 +85,8 @@ export default function Home() {
 
       <style jsx>{`
         @keyframes blob {
-          0%, 100% {
+          0%,
+          100% {
             transform: translate(0, 0) scale(1);
           }
           33% {

@@ -16,7 +16,8 @@ export default function Footer() {
               <span className="text-xl font-bold text-white">Heloware</span>
             </div>
             <p className="text-sm text-gray-400">
-              Real-time messaging that brings people together, instantly and effortlessly.
+              Real-time messaging that brings people together, instantly and
+              effortlessly.
             </p>
             {/* Social Links */}
             <div className="flex space-x-4">
@@ -49,22 +50,34 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Product</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Features
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Pricing
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Security
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Roadmap
                 </Link>
               </li>
@@ -76,22 +89,34 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Company</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   About Us
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Blog
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Careers
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Contact
                 </Link>
               </li>
@@ -103,22 +128,34 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-4">Legal</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Terms of Service
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm hover:text-white transition-colors">
+                <Link
+                  to="/"
+                  className="text-sm hover:text-white transition-colors"
+                >
                   GDPR
                 </Link>
               </li>
@@ -132,13 +169,22 @@ export default function Footer() {
             © {new Date().getFullYear()} Heloware. All rights reserved.
           </p>
           <div className="flex space-x-6 text-sm">
-            <Link to="/" className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               Status
             </Link>
-            <Link to="/" className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               Documentation
             </Link>
-            <Link to="/" className="text-gray-400 hover:text-white transition-colors">
+            <Link
+              to="/"
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               API
             </Link>
           </div>

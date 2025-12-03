@@ -5,7 +5,7 @@ export default function Demo() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Hey! Have you tried Heloware yet?",
+      text: 'Hey! Have you tried Heloware yet?',
       sender: 'other',
       time: '10:30 AM',
       status: 'read',
@@ -19,7 +19,7 @@ export default function Demo() {
     },
     {
       id: 3,
-      text: "Right? And messages are super fast!",
+      text: 'Right? And messages are super fast!',
       sender: 'other',
       time: '10:31 AM',
       status: 'read',
@@ -62,11 +62,13 @@ export default function Demo() {
           <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             See it in
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-              {' '}action
+              {' '}
+              action
             </span>
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Experience the smooth, intuitive interface that makes chatting a breeze
+            Experience the smooth, intuitive interface that makes chatting a
+            breeze
           </p>
         </div>
 
@@ -104,14 +106,18 @@ export default function Demo() {
                     <p className="text-sm leading-relaxed">{message.text}</p>
                     <div
                       className={`flex items-center justify-end space-x-1 mt-1 text-xs ${
-                        message.sender === 'me' ? 'text-white/70' : 'text-gray-500'
+                        message.sender === 'me'
+                          ? 'text-white/70'
+                          : 'text-gray-500'
                       }`}
                     >
                       <span>{message.time}</span>
                       {message.sender === 'me' && (
                         <>
                           {message.status === 'sent' && <Check size={14} />}
-                          {message.status === 'read' && <CheckCheck size={14} />}
+                          {message.status === 'read' && (
+                            <CheckCheck size={14} />
+                          )}
                         </>
                       )}
                     </div>
@@ -121,7 +127,10 @@ export default function Demo() {
             </div>
 
             {/* Chat Input */}
-            <form onSubmit={handleSend} className="border-t border-gray-200 p-4 bg-white">
+            <form
+              onSubmit={handleSend}
+              className="border-t border-gray-200 p-4 bg-white"
+            >
               <div className="flex items-center space-x-3">
                 <input
                   type="text"
