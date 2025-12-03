@@ -1,9 +1,10 @@
-import { React, useState } from 'react';
+import { React, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import GoogleSvg from './../assets/google-icon-logo.svg';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../redux/authSlice';
+import { API_URL } from '../config.js';
 
 const Signup = () => {
   const [name, setName] = useState('');
@@ -13,6 +14,15 @@ const Signup = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  // Redirect to dashboard if already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,22 +31,30 @@ const Signup = () => {
       return;
     }
     axios
-      .post('https://heloware-backend.onrender.com/auth/signup', {
+      .post(`${API_URL}/auth/signup`, {
         username,
         name,
         email,
         password,
       })
       .then((res) => {
-        navigate('/login');
+        const user = res.data.user;
+        const token = res.data.token;
+        dispatch(loginSuccess({ user, token }));
+        navigate('/dashboard');
       })
       .catch((err) => {
+        if (err.response?.data?.message) {
+          setError(err.response.data.message);
+        } else {
+          setError('An error occurred. Please try again.');
+        }
         console.log(err);
       });
   };
 
   const handleGoogleSignup = () => {
-    window.open('https://heloware-backend.onrender.com/auth/google', '_self');
+    window.open(`${API_URL}/auth/google`, '_self');
   };
 
   return (

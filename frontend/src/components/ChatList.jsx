@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import PropTypes from 'prop-types';
 import { setChats } from '../redux/chatSlice';
+import { API_URL } from '../config.js';
 
 const ChatList = ({ userId, onSelectChat }) => {
   const dispatch = useDispatch();
@@ -11,7 +12,7 @@ const ChatList = ({ userId, onSelectChat }) => {
 
   useEffect(() => {
     axios
-      .get(`https://heloware-backend.onrender.com/api/chats/${userId}`)
+      .get(`${API_URL}/api/chats/${userId}`)
       .then((res) => {
         dispatch(setChats(res.data.chats));
       })
