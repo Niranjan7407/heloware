@@ -27,6 +27,9 @@ const Dashboard = () => {
   const [error, setError] = useState('');
   const [showFriendRequests, setShowFriendRequests] = useState(false);
   const [activeSection, setActiveSection] = useState('home'); // home, messages, notifications, settings
+  const [isAccepting, setIsAccepting] = useState({});
+  const [isRejecting, setIsRejecting] = useState({});
+  const [isSendingRequest, setIsSendingRequest] = useState(false);
 
   // Handle Google OAuth callback with token in URL
   useEffect(() => {
@@ -132,8 +135,11 @@ const Dashboard = () => {
   };
 
   const handleSendFriendRequest = () => {
+    if (isSendingRequest) return; // Prevent duplicate requests
+    
     const toUsername = prompt('Enter username to send friend request:');
     if (toUsername) {
+      setIsSendingRequest(true);
       axios
         .post(`${API_URL}/api/chats/friend-request`, {
           fromUserId: user._id,
@@ -146,11 +152,17 @@ const Dashboard = () => {
           alert(
             err.response?.data?.message || 'Failed to send friend request.'
           );
+        })
+        .finally(() => {
+          setIsSendingRequest(false);
         });
     }
   };
 
   const handleAcceptFriendRequest = (friendId) => {
+    if (isAccepting[friendId]) return; // Prevent duplicate requests
+    
+    setIsAccepting((prev) => ({ ...prev, [friendId]: true }));
     axios
       .post(`${API_URL}/api/chats/accept-friend`, {
         userId: user._id,
@@ -161,10 +173,21 @@ const Dashboard = () => {
         axios
           .get(`${API_URL}/api/chats/${user._id}`)
           .then((res) => dispatch(setChats(res.data.chats)));
+      })
+      .catch((err) => {
+        alert(
+          err.response?.data?.message || 'Failed to accept friend request.'
+        );
+      })
+      .finally(() => {
+        setIsAccepting((prev) => ({ ...prev, [friendId]: false }));
       });
   };
 
   const handleRejectFriendRequest = (friendId) => {
+    if (isRejecting[friendId]) return; // Prevent duplicate requests
+    
+    setIsRejecting((prev) => ({ ...prev, [friendId]: true }));
     axios
       .post(`${API_URL}/api/chats/reject-friend`, {
         userId: user._id,
@@ -172,6 +195,14 @@ const Dashboard = () => {
       })
       .then(() => {
         setFriendRequests((prev) => prev.filter((u) => u._id !== friendId));
+      })
+      .catch((err) => {
+        alert(
+          err.response?.data?.message || 'Failed to reject friend request.'
+        );
+      })
+      .finally(() => {
+        setIsRejecting((prev) => ({ ...prev, [friendId]: false }));
       });
   };
 
@@ -201,10 +232,13 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={handleSendFriendRequest}
-                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                    disabled={isSendingRequest}
+                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <UserPlus size={16} />
-                    <span>Add Friend</span>
+                    <span>
+                      {isSendingRequest ? 'Sending...' : 'Add Friend'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -281,10 +315,13 @@ const Dashboard = () => {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={handleSendFriendRequest}
-                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+                    disabled={isSendingRequest}
+                    className="flex items-center space-x-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <UserPlus size={16} />
-                    <span>Add Friend</span>
+                    <span>
+                      {isSendingRequest ? 'Sending...' : 'Add Friend'}
+                    </span>
                   </button>
                 </div>
               </div>
@@ -321,10 +358,15 @@ const Dashboard = () => {
                         </p>
                         <button
                           onClick={handleSendFriendRequest}
-                          className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                          disabled={isSendingRequest}
+                          className="inline-flex items-center space-x-2 bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <UserPlus size={18} />
-                          <span>Add Your First Friend</span>
+                          <span>
+                            {isSendingRequest
+                              ? 'Sending...'
+                              : 'Add Your First Friend'}
+                          </span>
                         </button>
                       </div>
                     ) : (
@@ -363,19 +405,35 @@ const Dashboard = () => {
                                 onClick={() =>
                                   handleAcceptFriendRequest(request._id)
                                 }
-                                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md"
+                                disabled={
+                                  isAccepting[request._id] ||
+                                  isRejecting[request._id]
+                                }
+                                className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <Check size={18} />
-                                <span>Accept</span>
+                                <span>
+                                  {isAccepting[request._id]
+                                    ? 'Accepting...'
+                                    : 'Accept'}
+                                </span>
                               </button>
                               <button
                                 onClick={() =>
                                   handleRejectFriendRequest(request._id)
                                 }
-                                className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm hover:shadow-md"
+                                disabled={
+                                  isAccepting[request._id] ||
+                                  isRejecting[request._id]
+                                }
+                                className="flex items-center space-x-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 <X size={18} />
-                                <span>Decline</span>
+                                <span>
+                                  {isRejecting[request._id]
+                                    ? 'Declining...'
+                                    : 'Decline'}
+                                </span>
                               </button>
                             </div>
                           </div>
